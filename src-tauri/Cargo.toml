@@ -26,5 +26,10 @@ genpdf = "0.2.0"
 rusqlite = { version = "0.32.1", features = ["bundled"] }
 dirs = "5.0.1"
 webbrowser = "1.0.2"
+printpdf = "0.7.0"
+image = "0.25.4"
+base64 = "0.22.1"
+svg = "0.18.0"
+rfd = "0.15.0"
 
 

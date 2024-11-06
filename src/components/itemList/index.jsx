@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import {Checkbox} from "@mui/material";
 
-const ItemList = ({name, quant, id}) => {
+const ItemList = ({name, setMarked, id, image}) => {
 
     const [clicked, setClicked] = useState(false);
     const navigate = useNavigate();
+
+    const handleCheck = () => {
+        setMarked(id)
+    }
 
     useEffect(() => {
         if (clicked){
@@ -21,10 +26,18 @@ const ItemList = ({name, quant, id}) => {
     
 
     return (
-        <li onClick={() => {setClicked(!clicked)}} className={`flex transition-all ${clicked ? "scale-95" : ""} justify-between text-nowrap text-white p-3 hover:bg-default/60 bg-default rounded-md`}>
-            <span className="w-16">{id}</span>
-            <span>{name}</span>
-            <span className="w-16 text-right">{quant}</span>
+        <li className={`flex overflow-hidden bg-default items-center rounded-md transition-all w-full ${clicked ? "scale-95" : ""}`}>
+            <img style={{paddingLeft: '1rem', width: '3rem', height: '2.5rem', objectFit: 'cover'}} src={image} alt={"image"}/>
+            <div onClick={() => {
+                setClicked(!clicked)
+            }} className={`flex w-full justify-between text-nowrap text-white p-3 bg-default rounded-l-md`}>
+                <span className="w-16">{id}</span>
+                <span className={'flex justify-center w-full'}>{name}</span>
+            </div>
+            <Checkbox onChange={handleCheck} sx={{color: '#ffffff', "&.Mui-checked": {
+                    color: "#ffffff",
+                },}} type={"checkbox"}/>
+            <span className={"peer-checked:bg-default"}></span>
         </li>
     )
 }

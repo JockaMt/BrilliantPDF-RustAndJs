@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
-const SectionList = ({name, quant}) => {
+const SectionList = ({name, onDelete}) => {
 
     const [clicked, setClicked] = useState(false);
     const navigate = useNavigate();
@@ -17,12 +17,15 @@ const SectionList = ({name, quant}) => {
             
         }
     }, [clicked])
-    
+
+    const handleDelete = () => {
+        onDelete(name);
+    };
 
     return (
-        <li onClick={() => {setClicked(!clicked)}} className={`flex transition-all ${clicked ? "scale-95" : ""} justify-center text-nowrap text-white p-3 hover:bg-default/60 bg-default rounded-md`}>
-            <spann>{name}</spann>
-            <span>{quant}</span>
+        <li className={`flex group relative transition-all ${clicked ? "scale-95" : ""} justify-center text-nowrap text-white hover:bg-default/60 bg-default rounded-md`}>
+            <span onClick={() => {setClicked(!clicked)}} className={"flex justify-center w-full p-3"}>{name}</span>
+            <button onClick={handleDelete} className={"absolute hidden group-hover:block font-medium right-0 top-0 p-3"}>Apagar</button>
         </li>
     )
 }

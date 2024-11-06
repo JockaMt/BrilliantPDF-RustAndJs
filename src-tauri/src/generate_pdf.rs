@@ -1,45 +1,21 @@
-use std::env;
-use genpdf::{elements, error::Error};
-use webbrowser;
+use std::process::Command;
 
-pub fn gen(title: String) -> Result<i8, Error> {
-    // Obtém o diretório atual
-    let current_dir = env::current_dir().expect("Erro ao obter o diretório atual");
 
-    // Cria o caminho para a pasta das fontes
-    let font_dir = current_dir.join("src/fonts");
+pub fn python_gen(){
+    // Defina o caminho para o executável .exe e os argumentos que deseja passar
+    let exe_path = "src/gen_pdf.exe";
+    let args = ["src/database.db"]; // Removido espaço antes
 
-    // Verifica se o arquivo da fonte existe
-    // Carrega a fonte
-    let font_family = genpdf::fonts::from_files(font_dir, "Nexa-Heavy", None)
-        .expect("Erro ao carregar a fonte");
+    // Cria o comando para executar o programa com os argumentos
+    let output = Command::new(exe_path)
+        .args(&args)
+        .output() // executa o comando e captura a saída
+        .expect("Falha ao executar o programa");
 
-    // Criar um novo documento com a fonte carregada
-    let mut doc = genpdf::Document::new(font_family);
+    // Exibe a saída do programa .exe (se houver)
+    println!("Status: {}", output.status);
+    println!("Saída: {}", String::from_utf8_lossy(&output.stdout));
+    println!("Erros: {}", String::from_utf8_lossy(&output.stderr));
 
-    // Definir o título do documento
-    
-    doc.set_title("Catálogo");
-
-    // Adicionar um cabeçalho (opcional)
-    doc.push(elements::Paragraph::new("Cabeçalho do Catálogo"));
-
-    // Adicionar algum conteúdo ao documento
-    doc.push(elements::Paragraph::new("Este é o conteúdo do PDF."));
-
-    // Adicionar uma nova página (opcional)
-    doc.push(elements::Break::new(1));
-
-    // Adicionar mais conteúdo na nova página
-    doc.push(elements::Paragraph::new("Segunda página do PDF."));
-
-    if let Some(downloads_dir) = dirs::download_dir() {
-        println!("O caminho da pasta de Downloads é: {:?}", downloads_dir);
-        doc.render_to_file(downloads_dir.join(title.clone())).expect("Falha ao gerar PDF");
-        webbrowser::open(downloads_dir.join(title.clone()).to_str().unwrap()).unwrap();
-    } else {
-        println!("Não foi possível encontrar a pasta de Downloads.");
-    }
-    // Salvar o PDF em um arquivo
-    Ok(1)
+    webbrowser::open("Saved.pdf").expect("Erro ao browser!");
 }

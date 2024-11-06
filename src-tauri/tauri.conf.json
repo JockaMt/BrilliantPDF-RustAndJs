@@ -15,7 +15,6 @@
         "title": "Brilliant PDF",
         "width": 1280,
         "height": 720
-        
       }
     ],
     "security": {
@@ -27,6 +26,10 @@
     "targets": "all",
     "icon": [
       "icons/icon.ico"
+    ],
+    "resources": [
+      "src/fonts/*",
+      "src/gen_pdf.exe"
     ]
   }
 }
