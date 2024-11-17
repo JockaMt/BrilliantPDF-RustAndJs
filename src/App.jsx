@@ -10,18 +10,22 @@ import {useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home/>
-  },
-  {
-    path: "addItem/:id?:section?",
-    element: <AddItem/>
-  },
-  {
-    path: "editSection/:id?",
-    element: <EditSections/>
-  },
+    {
+        path: "/",
+        element: <Home/>
+    },
+    {
+        path: "addItem/:id?:section?",
+        element: <AddItem/>
+    },
+    {
+        path: "/addItem/:id?&:section?",
+        element: <AddItem/>
+    },
+    {
+        path: "editSection/:id?",
+        element: <EditSections/>
+    },
 ])
 
 function App() {
@@ -56,26 +60,24 @@ function App() {
     };
 
     const submit = async () => {
+        console.log(info)
         if (info !== ""){
-            console.log(options[alertAction])
-            console.log(info)
-            await invoke("update_info", {name: options[alertAction].action, info: info})
+            invoke("update_info", {name: options[alertAction].action, info: info}).then(()=>{
+                window.location.reload()
+            })
         }
     }
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
+        setAlertAction(4)
         if (file) {
             const reader = new FileReader();
             reader.onloadend = async () => {
                 const base = reader.result.toString()
-                setInfo(base)
-                try {
-                    setAlertAction(4);
-                    submit().then();
-                } catch (error) {
-                    console.error("Erro ao enviar informações:", error);
-                }
+                invoke("update_info", {name: "logo", info: base}).then(()=>{
+                    window.location.reload()
+                })
             };
             reader.onerror = () => {
                 console.error("Erro ao ler o arquivo");
@@ -84,8 +86,8 @@ function App() {
         }
     };
 
-    const selectFolder = () => {
-
+    const selectFolder = async () => {
+        invoke("where_save").then()
     }
 
     useEffect(() => {
@@ -112,7 +114,7 @@ function App() {
                 type="file"
                 accept={"image/*"}
                 ref={fileInputRef}
-                style={{display: 'none'}}  // input está oculto
+                style={{display: 'none'}}
                 onChange={handleImageChange}
             />
             <Modal onClose={() => setSectionAlert(false)} className={"flex justify-center items-center"}

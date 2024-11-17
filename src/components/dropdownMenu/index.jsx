@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-const DropdownMenu = ({options, onSelect, initial}) => {
+const DropdownMenu = ({options, onSelect, initial, selectItem}) => {
 
     const [selectedItem, setSelectedItem] = useState("")
     const [isOpenDropdown, setIsOpenDropdown] = useState(false)
@@ -17,6 +17,10 @@ const DropdownMenu = ({options, onSelect, initial}) => {
 
     useEffect(() => {
         setSelectedItem(initial)
+        if (selectItem) {
+            console.log(selectItem())
+        }
+        console.log(selectedItem)
     }, []);
 
     return (

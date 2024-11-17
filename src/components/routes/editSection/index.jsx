@@ -79,15 +79,28 @@ const AddSections = () => {
 
 
     const handleDeleteItems = async () => {
-        const delete_queue = selectedItems.ids.map(async (e) => {
-            console.log(Number(e))
-            await invoke("delete_item", {itemId: Number(e)})
-        })
+        try {
+            // Deleta os itens selecionados
+            const deleteQueue = selectedItems.ids.map(async (e) => {
+                await invoke("delete_item", { itemId: Number(e) });
+            });
 
-        await Promise.all(delete_queue).then(() => {
-            setSelectedItems({ids: []})
-        })
-    }
+            // Aguarda a exclusão de todos os itens
+            await Promise.all(deleteQueue);
+
+            // Limpa os itens selecionados
+            setSelectedItems({ ids: [] });
+
+            // Atualiza a lista de itens após a exclusão
+            if (id) {
+                const updatedItems = await invoke("get_items_in_section", { section: id });
+                setItems(updatedItems); // Atualiza o estado com os itens restantes
+            }
+        } catch (error) {
+            console.error("Erro ao deletar itens:", error);
+        }
+    };
+
 
     useEffect(() => {
         setSectionName(id || ""); // Define o nome da seção como id, ou uma string vazia se id não existir
@@ -118,6 +131,10 @@ const AddSections = () => {
 
     const handleDeleteAllItems = async () => {
         await invoke("delete_all_items", {section: id})
+        if (id) {
+            const updatedItems = await invoke("get_items_in_section", { section: id });
+            setItems(updatedItems); // Atualiza o estado com os itens restantes
+        }
     }
 
     return (
@@ -163,13 +180,14 @@ const AddSections = () => {
                                 <RiDeleteBin2Line size={20}/>Apagar seção
                             </button>
                         </div>
-                        {items.length !== 0 && <ul className="flex flex-1 flex-col py-3 mt-1 gap-1 items-center overflow-y-scroll">
+                        {items.length !== 0 ? <ul className="flex overflow-y-scroll flex-1 flex-col py-3 mt-1 gap-1 items-center">
                             <h1 className="flex font-bold text-lg">Itens</h1>
                             <small className={"pb-3"}>Clique no item para editar</small>
                             {items.map((e) => {
-                                return <ItemList setMarked={(e) => handleSetSelectItems(e)} key={e["id"]} image={e["image"]} id={e["id"]} name={e["i"]}/>
+                                return <ItemList setMarked={(e) => handleSetSelectItems(e)} key={e["id"]}
+                                                 image={e["image"]} id={e["id"]} name={e["i"]} section={e["section"]}/>
                             })}
-                        </ul>}
+                        </ul> : <small className={"flex justify-center pb-3 pt-10"}>Nenhum item encontrado</small>}
                         {selectedItems.ids.length !== 0 &&
                             <div className={"flex relative pb-2 pt-2"}>
                                 <button className={`fixe bottom-0 w-full transition-all disabled:bg-default/50 justify-center text-nowrap text-white p-3 hover:bg-red-800 bg-red-600 rounded-md items-center gap-3`} onClick={handleDeleteItems}>Deletar items</button>

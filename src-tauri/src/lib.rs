@@ -1,3 +1,4 @@
+use mongodb::bson::Document;
 use crate::database::Item;
 
 mod generate_pdf;
@@ -46,6 +47,20 @@ fn get_info (name :&str) -> String {database::get_info(name).expect("")}
 #[tauri::command]
 fn delete_all_sections () -> Result<(), String> { Ok(database::drop_tables().expect("")) }
 
+#[tauri::command]
+fn where_save () { database::choose_save_location(); }
+
+#[tauri::command]
+fn get_item (id: &str) -> Result<Item, String> { Ok(database::get_item(id).expect("")) }
+
+#[tauri::command]
+fn update_item (item: Item) -> Result<(), String> { Ok(database::update_item(item).expect(""))}
+
+#[tauri::command]
+async fn get_supponsors() -> Result<Vec<Document>, String> {
+    Ok(database::mongodb_connection()
+        .await.expect(""))// Converte erro para String
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -66,7 +81,11 @@ pub fn run() {
                 update_info,
                 get_info,
                 delete_all_items,
-                delete_all_sections
+                delete_all_sections,
+                where_save,
+                get_item,
+                update_item,
+                get_supponsors
             ]
         )
         .run(tauri::generate_context!())

@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import {useLocation, useNavigate} from "react-router-dom"
 import {Checkbox} from "@mui/material";
 
-const ItemList = ({name, setMarked, id, image}) => {
+const ItemList = ({name, setMarked, id, section, image}) => {
 
     const [clicked, setClicked] = useState(false);
     const navigate = useNavigate();
-
     const handleCheck = () => {
         setMarked(id)
     }
@@ -16,8 +15,7 @@ const ItemList = ({name, setMarked, id, image}) => {
             setTimeout(() => {
                 setClicked(!clicked);
                 setTimeout(()=>{
-                    console.log(id);
-                    navigate(`/addItem/${id}`)
+                    navigate(`/addItem?id=${id}&section=${section}`);
                 }, 100);
             }, 100);
             
@@ -26,7 +24,7 @@ const ItemList = ({name, setMarked, id, image}) => {
     
 
     return (
-        <li className={`flex overflow-hidden bg-default items-center rounded-md transition-all w-full ${clicked ? "scale-95" : ""}`}>
+        <li className={`flex min-h-12 overflow-hidden bg-default items-center rounded-md transition-all w-full ${clicked ? "scale-95" : ""}`}>
             <img style={{paddingLeft: '1rem', width: '3rem', height: '2.5rem', objectFit: 'cover'}} src={image} alt={"image"}/>
             <div onClick={() => {
                 setClicked(!clicked)
