@@ -1,3 +1,4 @@
+use std::env;
 use rusqlite::{params, Connection, Error, Result};
 use serde::{Serialize, Deserialize};
 use rfd::FileDialog;
@@ -23,7 +24,8 @@ pub(crate) struct Item {
 }
 
 pub async fn mongodb_connection() -> Result<Vec<Document>> {
-    let uri = "mongodb+srv://brilliantSoftware:vLwpd9MOIUUQFuk4@brilliantpdfsupponsers.ahfka.mongodb.net/?retryWrites=true&w=majority&tls=true";
+    dotenv::dotenv().ok();
+    let uri = env::var("URI").expect("URI não está definida");
 
     let client_options = ClientOptions::parse(uri)
         .await.expect(""); // Mapeia o erro para String

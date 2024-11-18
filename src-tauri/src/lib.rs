@@ -1,4 +1,5 @@
 use mongodb::bson::Document;
+use tauri::{Manager, Window};
 use crate::database::Item;
 
 mod generate_pdf;
@@ -59,7 +60,15 @@ fn update_item (item: Item) -> Result<(), String> { Ok(database::update_item(ite
 #[tauri::command]
 async fn get_supponsors() -> Result<Vec<Document>, String> {
     Ok(database::mongodb_connection()
-        .await.expect(""))// Converte erro para String
+        .await.expect(""))
+}
+
+#[tauri::command]
+fn close_splashscreen(window: Window) {
+    if let Some(splashscreen) = window.get_window("splashscreen") {
+        splashscreen.close().unwrap();
+    }
+    window.get_window("main").unwrap().show().unwrap();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -85,10 +94,10 @@ pub fn run() {
                 where_save,
                 get_item,
                 update_item,
-                get_supponsors
+                get_supponsors,
+                close_splashscreen,
             ]
         )
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-    
 }
