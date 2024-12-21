@@ -77,7 +77,7 @@ const SideBar = ({children}) => {
                 </SidebarContext.Provider>
                 <div onClick={()=> get_info().then()} className={`flex ${expanded ? "mx-4 justify-start" : "justify-center"} items-center h-16 gap-2`}>
                     {profileImage ? <img className={"w-12 h-12 min-w-12 object-cover rounded-full"} src={profileImage} alt="Profile-image"/> : <RiAccountCircleLine size={32}/>}
-                    {expanded ? <span>{profileName ? profileName : "Your Name"}</span> : null}
+                    {expanded ? <span>{profileName ? profileName : "Nome da empresa"}</span> : null}
                 </div>
             </div>
         </aside>

@@ -5,6 +5,8 @@ import { invoke } from "@tauri-apps/api/core";
 import DropdownMenu from "../../dropdownMenu/index.jsx";
 import { RiImage2Line } from "react-icons/ri";
 import { Box, Modal } from "@mui/material";
+import InputNumber from "rc-input-number";
+import "./index.css";
 
 const AddItem = () => {
     const location = useLocation();
@@ -41,6 +43,7 @@ const AddItem = () => {
 
     const submit = async () => {
         if (item.id && item.image && item.section) {
+            item.id = Number(item.id)
             const itemExists = await invoke("check_item_exists", {id: item.id});
             if (itemExists && !id) {
                 setMsgIdx(0)
@@ -48,8 +51,11 @@ const AddItem = () => {
             } else if (itemExists && id) {
                 const newItem = {...item};
                 Object.keys(newItem).forEach((key) => {
-                    if (newItem[key] === "") {
+                    if (newItem[key] === "" && key !== "item_name") {
                         newItem[key] = 0;
+                    }
+                    if (key !== "item_name"  && key !== "image" && key !== "name" && key !== "section") {
+                        newItem[key] = parseFloat(newItem[key])
                     }
                 });
                 await invoke("update_item", {item: newItem});
@@ -57,7 +63,7 @@ const AddItem = () => {
             } else {
                 const newItem = {...item};
                 for (let i in newItem) {
-                    if (newItem[i] === "" && i !== "image" && i !== "item_name") {
+                    if (newItem[i] === "" && i !== "image" && i !== "item_name" && i !== "id") {
                         newItem[i] = 0;
                     }
                 }
@@ -70,23 +76,15 @@ const AddItem = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        const parsedValue = isNaN(value) ? value : parseFloat(value);
-        if (parsedValue) {
-            if (Number(parsedValue)){
-                setItem((prevItem) => ({
-                    ...prevItem,
-                    [name]: parsedValue,
-                }));
-            }
-        } else {
+    const handleInputChange = (e, input_id) => {
+        if (Number(e)) {
             setItem((prevItem) => ({
                 ...prevItem,
-                [name]: "",
+                [input_id]: Number(e),
             }));
         }
     };
+
 
     const handleDescriptionChange = (e) => {
         const { name, value } = e.target
@@ -163,7 +161,7 @@ const AddItem = () => {
                 <div className="flex h-full">
                     <div className="flex flex-col pt-12 mx-12 w-full items-center">
                         <h2 className="flexpt-12 text-lg font-bold">{id ? "Editar item" : "Novo item"}</h2>
-                        <small className="flex w-full max-w-[50rem] justify-center border-b-2 mx-12 pb-3">Preencha os campos obrigatórios</small>
+                        <small className="flex w-full max-w-[50rem] text-center justify-center border-b-2 mx-12 pb-3">Preencha os campos obrigatórios <br/>(Use ponto para separar as casas decimais)</small>
                         <form onSubmit={(e) => {
                             e.preventDefault();
                             submit();
@@ -181,57 +179,73 @@ const AddItem = () => {
                                     alt=""/>
                                 {item.image ? <img alt={"icon"} className={"flex w-8 h-6 object-cover"} src={item.image.split(`\\`).pop()}/> : <RiImage2Line color={"#115f5f"}/>}Escolher imagem
                             </label>
-                            <input
-                                name={"id"}
+                            <InputNumber
+                                id={"id"}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
                                 value={item.id}
-                                onChange={handleInputChange}
+                                onChange={(e) => handleInputChange(e, "id")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5  p-2"
                                 type="text" placeholder="Código do item"/>
                             <input
                                 name={"item_name"}
                                 value={item.item_name}
                                 onChange={handleDescriptionChange}
-                                className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5  p-2"
+                                className="w-full border-b-2 border-default outline-none hover:bg-default/20 bg-default/5  p-2"
                                 type="text" placeholder="Descrição do item"/>
                             <DropdownMenu onSelect={handleSectionChange} id="dropdown" initial={section}
                                           options={sections}/>
-                            <input
-                                name={"gold_weight"}
+                            <InputNumber
+                                id={"gold_weight"}
                                 value={item.gold_weight}
-                                onChange={handleInputChange}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
+                                onChange={(e) => handleInputChange(e, "gold_weight")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
-                                type="text" placeholder="Peso em ouro"/>
-                            <input
-                                name={"gold_price"}
+                                inputMode={"decimal"}
+                                precision={2}
+                                placeholder="Peso em ouro"/>
+                            <InputNumber
+                                id={"gold_price"}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
                                 value={item.gold_price}
-                                onChange={handleInputChange}
+                                onChange={(e) => handleInputChange(e, "gold_price")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
-                                type="text" placeholder="Preço do ouro"/>
-                            <input
-                                name={"silver_weight"}
+                                inputMode={"decimal"}
+                                precision={2}
+                                placeholder="Preço do ouro"/>
+                            <InputNumber
+                                id={"silver_weight"}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
                                 value={item.silver_weight}
-                                onChange={handleInputChange}
+                                onChange={(e) => handleInputChange(e, "silver_weight")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
-                                type="text" placeholder="Peso em prata"/>
-                            <input
-                                name={"silver_price"}
+                                inputMode={"decimal"}
+                                precision={2}
+                                placeholder="Peso em prata"/>
+                            <InputNumber
+                                id={"silver_price"}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
                                 value={item.silver_price}
-                                onChange={handleInputChange}
+                                onChange={(e) => handleInputChange(e, "silver_price")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
-                                type="text" placeholder="Preço da prata"/>
-                            <input
-                                name={"loss"}
+                                inputMode={"decimal"}
+                                precision={2}
+                                placeholder="Preço da prata"/>
+                            <InputNumber
+                                id={"loss"}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
                                 value={item.loss}
-                                onChange={handleInputChange}
+                                onChange={(e) => handleInputChange(e, "loss")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
-                                type="text" placeholder="Perda de produção"/>
-                            <input
-                                name={"time"}
+                                inputMode={"numeric"}
+                                placeholder="Perda de material (em porcentagem)"/>
+                            <InputNumber
+                                id={"time"}
+                                style={{margin: 0, padding: 0, height: "2.7rem"}}
                                 value={item.time}
-                                onChange={handleInputChange}
-                                className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
-                                type="text" placeholder="Tempo de produção (em dias)"/>
-
+                                precision={0}
+                                onChange={(e) => handleInputChange(e, "time")}
+                                className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5  p-2"
+                                inputMode={"numeric"} placeholder="Tempo de produção (em dias)"/>
                             <button
                                 className="text-default transition-all font-medium p-2 hover:bg-default/40 rounded-md"
                                 type="submit">Salvar

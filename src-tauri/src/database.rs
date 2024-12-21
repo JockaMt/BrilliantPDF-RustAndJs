@@ -1,4 +1,5 @@
-use std::env;
+use std::{fs};
+use std::path::{Path};
 use rusqlite::{params, Connection, Error, Result};
 use serde::{Serialize, Deserialize};
 use rfd::FileDialog;
@@ -14,18 +15,18 @@ pub(crate) struct Item {
     pub(crate) id: i32,
     pub(crate) item_name: String,
     pub(crate) section: String,
-    pub(crate) gold_weight: u32,
-    pub(crate) gold_price: u32,
-    pub(crate) silver_weight: u32,
-    pub(crate) silver_price: u32,
-    pub(crate) loss: u32,
+    pub(crate) gold_weight: f32,
+    pub(crate) gold_price: f32,
+    pub(crate) silver_weight: f32,
+    pub(crate) silver_price: f32,
+    pub(crate) loss: f32,
     pub(crate) time: u32,
     pub(crate) image: String,
 }
 
 pub async fn mongodb_connection() -> Result<Vec<Document>> {
     dotenv::dotenv().ok();
-    let uri = env::var("URI").expect("URI não está definida");
+    let uri = "mongodb+srv://brilliantSoftware:vLwpd9MOIUUQFuk4@brilliantpdfsupponsers.ahfka.mongodb.net/?retryWrites=true&w=majority&tls=true";
 
     let client_options = ClientOptions::parse(uri)
         .await.expect(""); // Mapeia o erro para String
@@ -371,6 +372,64 @@ pub fn choose_save_location() {
         }
         None => {
             println!("Nenhuma pasta foi escolhida.");
+        }
+    }
+}
+
+pub fn export_database() -> Result<(), String> {
+    // Caminho do arquivo a ser copiado
+    let source_path = Path::new("./src/database.db");
+
+    // Verificar se o arquivo existe
+    if !source_path.exists() {
+        return Err(format!(
+            "O arquivo '{}' não foi encontrado.",
+            source_path.display()
+        ));
+    }
+
+    // Abrir um seletor para o usuário escolher o local e o nome do arquivo de destino
+    let destination_path = rfd::FileDialog::new()
+        .set_title("Escolha onde salvar o arquivo")
+        .set_file_name("Dados_do_catálogo.db") // Nome padrão
+        .add_filter("Banco de dados", &["db"])
+        .save_file();
+
+    // Verificar se o usuário escolheu um local
+    if let Some(destination) = destination_path {
+        // Copiar o arquivo para o local escolhido
+        match fs::copy(source_path, &destination) {
+            Ok(_) => {
+                Ok(())
+            }
+            Err(e) => Err(format!("Erro ao copiar o arquivo: {}", e)),
+        }
+    } else {
+        println!("Operação cancelada pelo usuário.");
+        Ok(())
+    }
+}
+
+pub fn import_database() {
+    let database_path = Path::new("./src/database.db");
+    let file_location = FileDialog::new()
+        .set_title("Selecione o banco de dados")
+        .add_filter("Banco de dados", &["db"])
+        .pick_file();
+    match file_location {
+        Some(file) => {
+            // Tente copiar o arquivo selecionado para o caminho do banco de dados
+            match fs::copy(&file, database_path) {
+                Ok(_) => {
+                    println!("Banco de dados substituído com sucesso.");
+                }
+                Err(e) => {
+                    eprintln!("Erro ao substituir o banco de dados: {}", e);
+                }
+            }
+        }
+        None => {
+            println!("Nenhum arquivo foi selecionado.");
         }
     }
 }

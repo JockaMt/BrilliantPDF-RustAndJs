@@ -17,10 +17,6 @@ const DropdownMenu = ({options, onSelect, initial, selectItem}) => {
 
     useEffect(() => {
         setSelectedItem(initial)
-        if (selectItem) {
-            console.log(selectItem())
-        }
-        console.log(selectedItem)
     }, []);
 
     return (

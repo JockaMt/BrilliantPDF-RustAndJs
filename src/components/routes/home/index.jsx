@@ -11,7 +11,6 @@ import {invoke} from "@tauri-apps/api/core";
 import {useEffect, useState} from "react";
 import SectionList from "../../sectionList/index.jsx";
 import {Box, Modal} from "@mui/material";
-import SponsorCard from "../../sponsorCard/index.jsx";
 
 
 const Home = () => {
@@ -32,8 +31,8 @@ const Home = () => {
     }
 
     const fetchSponsors = async () => {
-        invoke("get_supponsors").then((item) => {
-            setSponsors(item)
+        invoke('get_sponsors').then((e)=> {
+            setSponsors(e)
         })
     }
 
@@ -57,18 +56,6 @@ const Home = () => {
     return (
         <div className="flex flex-col h-full w-full">
             <div className="fixed h-full w-full -z-10 opacity-5 bg-background bg-no-repeat bg-center bg-cover "></div>
-            <Modal onClose={() => setModal(false)} className={"flex justify-center items-center"} open={modal}>
-                <Box sx={{width: 'auto', maxWidth: 500, minWidth: 300, height: 'auto', outline: 'none', borderRadius: 2, padding: 2}}
-                     className={"relative bg-white p-3"}>
-                    <RiCloseLine className={"absolute mr-3 right-0"} onClick={() => setModal(false)}/>
-                    <h2 className={"flex justify-center py-4 text-lg text-default font-medium"}>Apoiadores</h2>
-                    {sponsors.length > 0 ?
-                        sponsors.map((e) =>
-                            <SponsorCard sponsor={e}/>
-                        )
-                        : <p className={"flex justify-center"}>Carregando...</p>}
-                </Box>
-            </Modal>
             <Modal className={"flex justify-center items-center"} open={generating}>
                 <p className={"flex flex-col items-center outline-none text-white"}>Gerando PDF <RiLoader5Fill size={30} className={"flex justify-center animate-spin"}/></p>
             </Modal>
@@ -86,9 +73,6 @@ const Home = () => {
                         <button disabled={sections.length === 0} onClick={handleSaveCatalog}
                                 className="flex gap-3 disabled:bg-default/30 disabled:scale-100 justify-center items-center transition-all hover:scale-105 h-16 min-h-16 w-44 bg-default/80 hover:bg-default text-white font-medium rounded-lg shadow-md">
                             <RiFilePdfFill size={34}/><p>Gerar catálogo</p></button>
-                        <button onClick={() => setModal(true)}
-                                className="flex gap-3 disabled:bg-default/30 disabled:scale-100 justify-center items-center transition-all hover:scale-105 h-16 min-h-16 w-44 bg-default/80 hover:bg-default text-white font-medium rounded-lg shadow-md">
-                            <RiStarSFill size={34}/><p>Apoiadores</p></button>
                     </div>
                     <div className="flex flex-col pt-12 xl:mr-60 mx-5 w-full items-center">
                         <div className={"flex w-full relative justify-center"}><h2

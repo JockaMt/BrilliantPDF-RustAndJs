@@ -2,13 +2,22 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/routes/home";
 import SideBar from "./components/sidebar";
 import SidebarItem from "./components/sidebaritem";
-import { RiDeleteBin2Line, RiEditLine, RiExportLine, RiImageLine, RiImportLine, RiPaletteLine, RiPhoneLine, RiSave2Line } from "react-icons/ri";
+import {
+    RiBugLine,
+    RiDeleteBin2Line,
+    RiEditLine,
+    RiExportLine,
+    RiImageLine,
+    RiImportLine,
+    RiPaletteLine,
+    RiPhoneLine,
+    RiSave2Line
+} from "react-icons/ri";
 import AddItem from "./components/routes/addItem";
 import EditSections from "./components/routes/editSection";
 import {Box, Modal} from "@mui/material";
 import React, {useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
-import ReactPlayer from "react-player";
 
 const router = createBrowserRouter([
     {
@@ -32,6 +41,7 @@ const router = createBrowserRouter([
 const App = () => {
 
     const [sectionAlert, setSectionAlert] = useState(false)
+    const [sectionAlert2, setSectionAlert2] = useState(false)
     const [alertAction, setAlertAction] = useState(0)
     const options = [
         {title: "Editar nome da empresa", action: "name"},
@@ -40,6 +50,7 @@ const App = () => {
         {title: "Tem certeza que deseja deletar?", action: "delete"},
         {title: "imagem", action: "logo"},
     ]
+    const [helper, setHelper] = useState("")
     const [pallet, setPallet] = useState(0)
     const [info, setInfo] = useState("")
     const [isloaded, setIsloaded] = useState(false)
@@ -68,6 +79,10 @@ const App = () => {
                 window.location.reload()
             })
         }
+    }
+
+    const handleDelete = () => {
+        setSectionAlert2(true)
     }
 
     const handleImageChange = async (e) => {
@@ -115,15 +130,35 @@ const App = () => {
                         style={{display: 'none'}}
                         onChange={handleImageChange}
                     />
-                    <Modal onClose={() => setSectionAlert(false)} className={"flex justify-center items-center"}
+                    <Modal onClose={() => setSectionAlert2(false)} className={"flex justify-center items-center"} open={sectionAlert2}>
+                        <Box sx={{ width: 'auto', height: 'auto', borderRadius: 2 }} className={"bg-white p-5 outline-none"}>
+                            <h2 className={"flex justify-center pt-2 text-lg text-default font-medium"}>Atenção!</h2>
+                            <p className={"flex text-center justify-center items-center pt-4"}>Deseja mesmo deletar o catálogo?</p>
+                            <div className={'flex justify-between gap-12 pt-6'}>
+                                <button onClick={() => setSectionAlert2(false)} className={'p-3 transition-colors duration-300 bg-default/20 text-red-600 font-medium rounded-md hover:text-white hover:bg-default'}>Cancelar</button>
+                                <button onClick={() => {
+                                    invoke("delete_all_sections").then(()=>{
+                                        setSectionAlert2(true)
+                                        window.location.reload()
+                                    })
+                                }} className={'p-3 transition-colors duration-300 bg-default/20 text-default font-medium rounded-md hover:text-white hover:bg-default'}>Confirmar
+                                </button>
+                            </div>
+                        </Box>
+                    </Modal>
+                    <Modal onClose={() => {
+                        setHelper("")
+                        setSectionAlert(false)
+                    }} className={"flex justify-center items-center"}
                            open={sectionAlert}>
-                        <Box sx={{width: 400, height: alertAction !== 1 ? 180 : 300, borderRadius: 2}}
+                        <Box sx={{width: 400, height: "auto", borderRadius: 2}}
                              className={"bg-white outline-none p-3"}>
                             <form onSubmit={(e) => {
                                 e.preventDefault()
                                 submit().then()
                             }} className={"flex flex-col outline-none gap-5"}>
                                 <h2 className={"flex justify-center pt-2 text-lg text-default font-medium"}>{options[alertAction].title}</h2>
+                                {<small>{helper ? "Atual: " : ""}{helper}</small>}
                                 {alertAction !== 1 && alertAction !== 3 &&
                                     <input onChange={handleInputChange}
                                            className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"/>
@@ -153,40 +188,35 @@ const App = () => {
                                             className={"transition-all font-medium p-2 hover:bg-default/40 rounded-md"}>Salvar
                                     </button>
                                 }
-                                {alertAction === 3 &&
-                                    <div className={"flex pt-12 justify-between bottom-0 right-0"}>
-                                        <button onClick={() => setSectionAlert(!sectionAlert)}
-                                                className={"transition-all flex w-full justify-center text-default font-medium p-2 px-14 hover:bg-default/40 rounded-md"}>Cancelar
-                                        </button>
-                                        <button onClick={handleDelete} style={{color: '#ff2020'}}
-                                                className={"transition-all flex w-full justify-center font-medium p-2 px-14 hover:bg-default/40 rounded-md"}>Deletar
-                                        </button>
-                                    </div>
-                                }
                             </form>
                         </Box>
                     </Modal>
                     <SideBar>
-                        <SidebarItem onClick={() => {
+                        <SidebarItem onClick={async () => {
                             setAlertAction(0)
-                            setSectionAlert(true);
+                            setSectionAlert(true)
+                            setHelper(await invoke("get_info", {name: "name"}))
                         }} icon={<RiEditLine/>} text={"Editar nome"}/>
                         <SidebarItem onClick={handleLogoChange} icon={<RiImageLine/>} text={"Editar imagem"}/>
-                        <SidebarItem onClick={() => {
+                        <SidebarItem onClick={async () => {
                             setAlertAction(1)
                             setSectionAlert(true)
+                            setHelper("")
                         }} icon={<RiPaletteLine/>} text={"Editar Paleta"}/>
-                        <SidebarItem onClick={() => {
+                        <SidebarItem onClick={async () => {
                             setAlertAction(2)
                             setSectionAlert(true)
+                            setHelper(await invoke("get_info", {name: "phone"}))
                         }} icon={<RiPhoneLine/>} text={"Editar Número"}/>
-                        <SidebarItem icon={<RiImportLine/>} text={"Importar Catálogo"}/>
-                        <SidebarItem icon={<RiExportLine/>} text={"Exportar Catálogo"}/>
+                        <SidebarItem onClick={async () => invoke("import_database").then(()=>{
+                            window.location.reload()
+                        })} icon={<RiImportLine/>} text={"Importar Catálogo"}/>
+                        <SidebarItem onClick={async () => await invoke("export_database")} icon={<RiExportLine/>} text={"Exportar Catálogo"}/>
                         <SidebarItem onClick={selectFolder} icon={<RiSave2Line/>} text={"Onde salvar"}/>
-                        <SidebarItem onClick={() => {
-                            setAlertAction(3)
-                            setSectionAlert(true)
+                        <SidebarItem onClick={async () => {
+                            handleDelete()
                         }} icon={<RiDeleteBin2Line/>} text={"Deletar Catálogo"}/>
+                        <SidebarItem onClick={async () => await invoke("open_email_report")} icon={<RiBugLine/>} text={"Reportar erro"}/>
                     </SideBar>
                     <main className="flex h-full ml-16">
                         <RouterProvider router={router}/>

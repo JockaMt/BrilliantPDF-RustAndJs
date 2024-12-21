@@ -58,7 +58,7 @@ fn get_item (id: &str) -> Result<Item, String> { Ok(database::get_item(id).expec
 fn update_item (item: Item) -> Result<(), String> { Ok(database::update_item(item).expect(""))}
 
 #[tauri::command]
-async fn get_supponsors() -> Result<Vec<Document>, String> {
+async fn get_sponsors() -> Result<Vec<Document>, String> {
     Ok(database::mongodb_connection()
         .await.expect(""))
 }
@@ -69,6 +69,17 @@ fn close_splashscreen(window: Window) {
         splashscreen.close().unwrap();
     }
     window.get_window("main").unwrap().show().unwrap();
+}
+
+#[tauri::command]
+fn export_database() -> Result<(), String> { Ok(database::export_database().expect("")) }
+
+#[tauri::command]
+fn import_database() { database::import_database(); }
+
+#[tauri::command]
+fn open_email_report() {
+    webbrowser::open("https://is.gd/C08nG4").expect("TODO: panic message");
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -94,8 +105,11 @@ pub fn run() {
                 where_save,
                 get_item,
                 update_item,
-                get_supponsors,
+                get_sponsors,
                 close_splashscreen,
+                export_database,
+                import_database,
+                open_email_report,
             ]
         )
         .run(tauri::generate_context!())

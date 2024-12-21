@@ -28,11 +28,11 @@ const ItemList = ({name, setMarked, id, section, image}) => {
             <img style={{paddingLeft: '1rem', width: '3rem', height: '2.5rem', objectFit: 'cover'}} src={image} alt={"image"}/>
             <div onClick={() => {
                 setClicked(!clicked)
-            }} className={`flex w-full justify-between text-nowrap text-white p-3 bg-default rounded-l-md`}>
+            }} className={`flex flex-1 overflow-hidden w-auto justify-between text-nowrap text-white p-3 bg-default rounded-l-md`}>
                 <span className="w-16">{id}</span>
-                <span className={'flex justify-center w-full'}>{name}</span>
+                <span className={"flex w-full pr-16 justify-evenly overflow-hidden"}>{name}</span>
             </div>
-            <Checkbox onChange={handleCheck} sx={{color: '#ffffff', "&.Mui-checked": {
+            <Checkbox className={""} onChange={handleCheck} sx={{color: '#ffffff', "&.Mui-checked": {
                     color: "#ffffff",
                 },}} type={"checkbox"}/>
             <span className={"peer-checked:bg-default"}></span>
