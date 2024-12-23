@@ -81,7 +81,12 @@ const AddItem = () => {
             setItem((prevItem) => ({
                 ...prevItem,
                 [input_id]: Number(e),
-            }));
+            }))
+        } else {
+            setItem((prevItem) => ({
+                ...prevItem,
+                [input_id]: "",
+            }))
         }
     };
 
@@ -202,6 +207,7 @@ const AddItem = () => {
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
                                 inputMode={"decimal"}
                                 precision={2}
+                                defaultValue={0}
                                 placeholder="Peso em ouro"/>
                             <InputNumber
                                 id={"gold_price"}

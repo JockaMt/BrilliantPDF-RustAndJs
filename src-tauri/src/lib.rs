@@ -79,7 +79,7 @@ fn import_database() { database::import_database(); }
 
 #[tauri::command]
 fn open_email_report() {
-    webbrowser::open("https://is.gd/C08nG4").expect("TODO: panic message");
+    webbrowser::open("https://wa.me/5528981137532").expect("TODO: panic message");
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
