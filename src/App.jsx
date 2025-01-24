@@ -53,7 +53,6 @@ const App = () => {
     const [helper, setHelper] = useState("")
     const [pallet, setPallet] = useState(0)
     const [info, setInfo] = useState("")
-    const [isloaded, setIsloaded] = useState(false)
 
     const handleInputChange = (e) => {
         setInfo(e.target.value);

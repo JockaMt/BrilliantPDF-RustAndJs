@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-const DropdownMenu = ({options, onSelect, initial, selectItem}) => {
+const DropdownMenu = ({options, onSelect, initial}) => {
 
     const [selectedItem, setSelectedItem] = useState("")
     const [isOpenDropdown, setIsOpenDropdown] = useState(false)
