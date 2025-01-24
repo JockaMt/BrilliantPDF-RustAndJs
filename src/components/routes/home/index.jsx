@@ -1,11 +1,9 @@
 import {useNavigate} from "react-router-dom";
 import Header from "../../header";
 import {
-    RiCloseLine,
     RiDatabaseFill,
     RiFilePdfFill,
     RiFileTextFill, RiLoader5Fill,
-    RiStarSFill
 } from "react-icons/ri";
 import {invoke} from "@tauri-apps/api/core";
 import {useEffect, useState} from "react";
@@ -17,8 +15,6 @@ const Home = () => {
     const [sections, setSections] = useState([]);
     const [loaded, setLoaded] = useState(false);
     const navigate = useNavigate()
-    const [modal, setModal] = useState(false)
-    const [sponsors, setSponsors] = useState([])
     const [generating, setGenerating] = useState(false)
 
 
@@ -30,15 +26,8 @@ const Home = () => {
             })
     }
 
-    const fetchSponsors = async () => {
-        invoke('get_sponsors').then((e)=> {
-            setSponsors(e)
-        })
-    }
-
     useEffect(() => {
         fetchSections();
-        fetchSponsors()
     }, []);
 
     const handleDeleteSection = (sectionName) => {

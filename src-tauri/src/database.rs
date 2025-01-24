@@ -3,12 +3,6 @@ use std::path::{Path};
 use rusqlite::{params, Connection, Error, Result};
 use serde::{Serialize, Deserialize};
 use rfd::FileDialog;
-use mongodb::{
-    bson::{Document, doc},
-    {Client, Collection}
-};
-use mongodb::options::ClientOptions;
-use futures_util::stream::StreamExt;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Item {
@@ -24,32 +18,7 @@ pub(crate) struct Item {
     pub(crate) image: String,
 }
 
-pub async fn mongodb_connection() -> Result<Vec<Document>> {
-    dotenv::dotenv().ok();
-    let uri = "mongodb+srv://brilliantSoftware:vLwpd9MOIUUQFuk4@brilliantpdfsupponsers.ahfka.mongodb.net/?retryWrites=true&w=majority&tls=true";
 
-    let client_options = ClientOptions::parse(uri)
-        .await.expect(""); // Mapeia o erro para String
-
-    let client = Client::with_options(client_options)
-        .map_err(|e| e.to_string()).expect("");
-
-    let database = client.database("supponser_list");
-    let collection: Collection<Document> = database.collection("supponsers");
-
-    let mut cursor = collection.find(None, None)
-        .await.expect("");
-
-    let mut documents = Vec::new();
-
-    while let Some(result) = cursor.next().await {
-        match result {
-            Ok(document) => documents.push(document.clone()),
-            Err(e) => eprintln!("Erro ao processar documento: {:?}", e),
-        }
-    }
-    Ok(documents)
-}
 
 fn connection() -> Result<Connection> {
     let connection_result = Connection::open("./src/database.db");

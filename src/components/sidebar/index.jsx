@@ -52,13 +52,13 @@ const SideBar = ({children}) => {
     return (
         <aside className="fixed h-screen z-50">
             <Modal onClose={() => setModal(false)} className={"flex justify-center items-center"} open={modal}>
-                <Box sx={{width: 'auto', maxWidth: 500, height: 'auto', outline: 'none', borderRadius: 2, padding: 2}}
+                <Box sx={{width: 'auto', maxWidth: 500, minWidth: 300, height: 'auto', outline: 'none', borderRadius: 2, padding: 2}}
                      className={"relative bg-white p-3"}>
                     <RiCloseLine className={"absolute mr-3 right-0"} onClick={()=>setModal(false)}/>
                     <h2 className={"flex justify-center py-4 text-lg text-default font-medium"}>Informações</h2>
                     <p className={"flex p-2 items-center"}>Nome: {info["name"] ? info["name"] : "Vazio"}</p>
                     <p className={"flex p-2 items-center"}>Telefone: {info["phone"] ? info["phone"] : "Vazio"}</p>
-                    <p className={"flex p-2 text-wrap items-center"}>Local: {info["save_path"] ? info["save_path"] : "Vazio"}</p>
+                    <p className={"flex p-2 text-wrap items-center"}>Local: {info["save_path"] ? info["save_path"] : "- Selecione um local para salvar na barra lateral -"}</p>
                     <p className={"flex p-2 items-center"}>Paleta: {info["pallet"] ? info["pallet"] : "Vazio"}</p>
                 </Box>
             </Modal>

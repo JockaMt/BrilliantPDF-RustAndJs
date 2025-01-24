@@ -1,4 +1,3 @@
-use mongodb::bson::Document;
 use tauri::{Manager, Window};
 use crate::database::Item;
 
@@ -58,12 +57,6 @@ fn get_item (id: &str) -> Result<Item, String> { Ok(database::get_item(id).expec
 fn update_item (item: Item) -> Result<(), String> { Ok(database::update_item(item).expect(""))}
 
 #[tauri::command]
-async fn get_sponsors() -> Result<Vec<Document>, String> {
-    Ok(database::mongodb_connection()
-        .await.expect(""))
-}
-
-#[tauri::command]
 fn close_splashscreen(window: Window) {
     if let Some(splashscreen) = window.get_window("splashscreen") {
         splashscreen.close().unwrap();
@@ -105,7 +98,6 @@ pub fn run() {
                 where_save,
                 get_item,
                 update_item,
-                get_sponsors,
                 close_splashscreen,
                 export_database,
                 import_database,
