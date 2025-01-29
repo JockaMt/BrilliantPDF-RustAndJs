@@ -173,6 +173,9 @@ const App = () => {
     const handleSignOut = async () => {
         try {
             await signOut(auth);
+            auth.signOut();
+            localStorage.clear();
+            sessionStorage.clear();
             setLogged(false);
         } catch (error) {
             console.error("Erro ao fazer logout:", error);
