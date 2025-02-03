@@ -11,13 +11,40 @@ import {
     RiImportLine,
     RiPaletteLine,
     RiPhoneLine,
-    RiSave2Line
+    RiSave2Line,
+    RiLogoutCircleRLine
 } from "react-icons/ri";
 import AddItem from "./components/routes/addItem";
 import EditSections from "./components/routes/editSection";
 import {Box, Modal} from "@mui/material";
 import React, {useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+} from "firebase/auth";
+import LoginScreen from "./components/loginScreen/index.jsx";
+const firebaseConfig = {
+    apiKey: "AIzaSyCJskXz_PW1a17PZeI-QqtdA9gY-vaV-NY",
+    authDomain: "brilliant-software.firebaseapp.com",
+    projectId: "brilliant-software",
+    storageBucket: "brilliant-software.firebasestorage.app",
+    messagingSenderId: "595501321567",
+    appId: "1:595501321567:web:2619b9efd6310c3f68baea",
+    measurementId: "G-MHXQE9TC9M"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 const router = createBrowserRouter([
     {
@@ -40,19 +67,20 @@ const router = createBrowserRouter([
 
 const App = () => {
 
-    const [sectionAlert, setSectionAlert] = useState(false)
-    const [sectionAlert2, setSectionAlert2] = useState(false)
-    const [alertAction, setAlertAction] = useState(0)
+    const [logged, setLogged] = useState(false);
+    const [sectionAlert, setSectionAlert] = useState(false);
+    const [sectionAlert2, setSectionAlert2] = useState(false);
+    const [alertAction, setAlertAction] = useState(0);
     const options = [
         {title: "Editar nome da empresa", action: "name"},
         {title: "Editar paleta de cores", action: "pallet"},
         {title: "Editar número para contato", action: "phone"},
         {title: "Tem certeza que deseja deletar?", action: "delete"},
         {title: "imagem", action: "logo"},
-    ]
-    const [helper, setHelper] = useState("")
-    const [pallet, setPallet] = useState(0)
-    const [info, setInfo] = useState("")
+    ];
+    const [helper, setHelper] = useState("");
+    const [pallet, setPallet] = useState(0);
+    const [info, setInfo] = useState("");
 
     const handleInputChange = (e) => {
         setInfo(e.target.value);
@@ -108,7 +136,13 @@ const App = () => {
 
     useEffect(() => {
         get_pallet().then();
-        setTimeout(()=>invoke("close_splashscreen"), 5000)
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setLogged(!!user);
+        });
+
+        setTimeout(()=>invoke("close_splashscreen"), 5000);
+
+        return () => unsubscribe();
     }, []);
 
     const get_pallet = async () => {
@@ -120,8 +154,40 @@ const App = () => {
         submit().then()
     }
 
+    const handleGoogleLogin = async () => {
+        try {
+            await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+            console.error("Erro ao fazer login com o Google:", error);
+        }
+    };
+
+    const handleEmailLogin = async (email, password) => {
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            console.error("Erro ao fazer login com e-mail e senha:", error);
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            auth.signOut();
+            localStorage.clear();
+            sessionStorage.clear();
+            setLogged(false);
+        } catch (error) {
+            console.error("Erro ao fazer logout:", error);
+        }
+    };
+
     return (
-                <div className="h-full w-full">
+        <div className="flex flex-col h-full w-full">
+            {!logged ? (
+                <LoginScreen handleEmailLogin={handleEmailLogin} handleGoogleLogin={handleGoogleLogin}/>
+            ) : (
+                <div>
                     <input
                         type="file"
                         accept={"image/*"}
@@ -145,51 +211,6 @@ const App = () => {
                             </div>
                         </Box>
                     </Modal>
-                    <Modal onClose={() => {
-                        setHelper("")
-                        setSectionAlert(false)
-                    }} className={"flex justify-center items-center"}
-                           open={sectionAlert}>
-                        <Box sx={{width: 400, height: "auto", borderRadius: 2}}
-                             className={"bg-white outline-none p-3"}>
-                            <form onSubmit={(e) => {
-                                e.preventDefault()
-                                submit().then()
-                            }} className={"flex flex-col outline-none gap-5"}>
-                                <h2 className={"flex justify-center pt-2 text-lg text-default font-medium"}>{options[alertAction].title}</h2>
-                                {<small>{helper ? "Atual: " : ""}{helper}</small>}
-                                {alertAction !== 1 && alertAction !== 3 &&
-                                    <input onChange={handleInputChange}
-                                           className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"/>
-                                }
-                                {alertAction === 1 &&
-                                    <ul>
-                                        <label className={"flex hover:bg-default/20 p-2 rounded-md gap-2"}><input
-                                            onChange={handlePalletChange} value={"0"} name={"pallet"}
-                                            checked={pallet === 0}
-                                            type={"radio"}/> Cinza</label>
-                                        <label className={"flex hover:bg-default/20 p-2 rounded-md gap-2"}><input
-                                            onChange={handlePalletChange} value={"1"} name={"pallet"}
-                                            checked={pallet === 1}
-                                            type={"radio"}/> Azul</label>
-                                        <label className={"flex hover:bg-default/20 p-2 rounded-md gap-2"}><input
-                                            onChange={handlePalletChange} value={"2"} name={"pallet"}
-                                            checked={pallet === 2}
-                                            type={"radio"}/> Amarelo</label>
-                                        <label className={"flex hover:bg-default/20 p-2 rounded-md gap-2"}><input
-                                            onChange={handlePalletChange} value={"3"} name={"pallet"}
-                                            checked={pallet === 3}
-                                            type={"radio"}/> Rosa</label>
-                                    </ul>
-                                }
-                                {alertAction !== 3 &&
-                                    <button onClick={() => handlePallet()} type={"submit"}
-                                            className={"transition-all font-medium p-2 hover:bg-default/40 rounded-md"}>Salvar
-                                    </button>
-                                }
-                            </form>
-                        </Box>
-                    </Modal>
                     <SideBar>
                         <SidebarItem onClick={async () => {
                             setAlertAction(0)
@@ -207,20 +228,19 @@ const App = () => {
                             setSectionAlert(true)
                             setHelper(await invoke("get_info", {name: "phone"}))
                         }} icon={<RiPhoneLine/>} text={"Editar Número"}/>
-                        <SidebarItem onClick={async () => invoke("import_database").then(()=>{
-                            window.location.reload()
-                        })} icon={<RiImportLine/>} text={"Importar Catálogo"}/>
+                        <SidebarItem onClick={async () => invoke("import_database").then(()=>{ window.location.reload() })} icon={<RiImportLine/>} text={"Importar Catálogo"}/>
                         <SidebarItem onClick={async () => await invoke("export_database")} icon={<RiExportLine/>} text={"Exportar Catálogo"}/>
                         <SidebarItem onClick={selectFolder} icon={<RiSave2Line/>} text={"Onde salvar"}/>
-                        <SidebarItem onClick={async () => {
-                            handleDelete()
-                        }} icon={<RiDeleteBin2Line/>} text={"Deletar Catálogo"}/>
+                        <SidebarItem onClick={async () => { handleDelete() }} icon={<RiDeleteBin2Line/>} text={"Deletar Catálogo"}/>
                         <SidebarItem onClick={async () => await invoke("open_email_report")} icon={<RiBugLine/>} text={"Reportar erro"}/>
+                        <SidebarItem onClick={handleSignOut} icon={<RiLogoutCircleRLine />} text={"Sair"} />
                     </SideBar>
                     <main className="flex h-full ml-16">
                         <RouterProvider router={router}/>
                     </main>
                 </div>
+            )}
+        </div>
     );
 }
 
