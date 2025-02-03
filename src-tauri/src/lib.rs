@@ -75,6 +75,7 @@ fn open_email_report() {
     webbrowser::open("https://wa.me/5528981137532").expect("TODO: panic message");
 }
 
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

@@ -1,8 +1,6 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{env, fs, io};
-use std::fs::Permissions;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use sha2::{Sha256, Digest};
@@ -19,10 +17,12 @@ struct HWIDData {
 }
 
 fn set_file_read_only(file_path: &Path) -> io::Result<()> {
-    // Comando para definir o arquivo como somente leitura no Windows
     let file_path_str = file_path.to_str().unwrap_or_default();
     Command::new("cmd")
         .args(&["/C", "attrib", "+R", file_path_str])
+        .output()?;
+    Command::new("cmd")
+        .args(&["/C", "attrib", "+H", file_path_str])
         .output()?;
     Ok(())
 }
@@ -32,7 +32,6 @@ fn get_hwid_file_path() -> PathBuf {
     current_dir.join("hash.json")
 }
 
-// 🔑 Gera um HWID baseado no hardware do sistema
 fn generate_hwid() -> String {
     let mut system = System::new_all();
     system.refresh_all();
@@ -47,7 +46,6 @@ fn generate_hwid() -> String {
 }
 
 
-// 🔒 Criptografa o HWID usando AES-256-GCM
 fn encrypt_hwid(hwid: &str, key: &[u8; 32]) -> Option<String> {
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
 
@@ -61,7 +59,6 @@ fn encrypt_hwid(hwid: &str, key: &[u8; 32]) -> Option<String> {
     }
 }
 
-// 💾 Salva o HWID criptografado no JSON
 fn save_to_json(encrypted_hwid: &str) -> std::io::Result<()> {
     let file_path = get_hwid_file_path();
 
@@ -76,7 +73,6 @@ fn save_to_json(encrypted_hwid: &str) -> std::io::Result<()> {
     Ok(())
 }
 
-// 📖 Lê o HWID criptografado salvo no JSON
 fn read_hwid_from_json() -> Option<String> {
     let file_path = get_hwid_file_path();
 
@@ -91,14 +87,6 @@ fn read_hwid_from_json() -> Option<String> {
         }
     }
     None
-}
-
-// ✅ Verifica se o HWID atual corresponde ao salvo
-fn check_hwid_match(encrypted_hwid: &str) -> bool {
-    if let Some(saved_hwid) = read_hwid_from_json() {
-        return saved_hwid == encrypted_hwid;
-    }
-    false
 }
 
 fn main() {

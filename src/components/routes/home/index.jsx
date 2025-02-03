@@ -28,6 +28,7 @@ const Home = () => {
 
     useEffect(() => {
         fetchSections();
+        console.log(sections)
     }, []);
 
     const handleDeleteSection = (sectionName) => {
@@ -37,7 +38,7 @@ const Home = () => {
 
     const handleSaveCatalog = async () => {
         setGenerating(true)
-        invoke("generate_pdf").then((e) => {
+        invoke("generate_pdf").then((_e) => {
             setGenerating(false)
         })
     }
@@ -65,7 +66,8 @@ const Home = () => {
                     </div>
                     <div className="flex flex-col pt-12 xl:mr-60 mx-5 w-full items-center">
                         <div className={"flex w-full relative justify-center"}><h2
-                            className="flex text-lg font-bold">Seções</h2></div>
+                            className="flex text-lg font-bold">Seções</h2> <input
+                            className={"absolute outline-none left-0"} type="text"/></div>
                         <small className="flex w-full mb-2 max-w-[50rem] justify-center border-b-2 mx-12 pb-3">Clique para editar a seção</small>
                         <ul className="flex gap-1 flex-col w-full max-w-[50rem] overflow-y-auto py-3">
                             {loaded &&
