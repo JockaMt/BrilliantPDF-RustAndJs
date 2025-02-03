@@ -1,8 +1,8 @@
 [package]
 name = "brilliantpdf"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+version = "1.0.0"
+description = "BrilliantSoftware"
+authors = ["BrilliantSoftware"]
 edition = "2021"
 
 [lib]
@@ -24,7 +24,13 @@ webbrowser = "1.0.2"
 base64 = "0.22.1"
 svg = "0.18.0"
 rfd = "0.15.0"
-mongodb = "2.0"
 tokio = { version = "1", features = ["full"] }
 futures-util = "0.3.31"
-dotenv = "0.15.0"
+uuid = "1.11.0"
+sha = "1.0.3"
+sha2 = "0.10.8"
+get_if_addrs = "0.5.3"
+sysinfo = "0.33.1"
+rand = "0.7.3"
+hex = "0.4.3"
+aes-gcm = "0.10.3"
