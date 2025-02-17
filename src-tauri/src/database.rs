@@ -18,8 +18,6 @@ pub(crate) struct Item {
     pub(crate) image: String,
 }
 
-
-
 fn connection() -> Result<Connection> {
     let connection_result = Connection::open("./src/database.db");
     match connection_result {
@@ -390,6 +388,7 @@ pub fn import_database() {
             // Tente copiar o arquivo selecionado para o caminho do banco de dados
             match fs::copy(&file, database_path) {
                 Ok(_) => {
+                    let _ = add_info_opened();
                     println!("Banco de dados substituído com sucesso.");
                 }
                 Err(e) => {
@@ -401,4 +400,16 @@ pub fn import_database() {
             println!("Nenhum arquivo foi selecionado.");
         }
     }
+}
+
+pub fn add_info_opened() -> Result<()> {
+    // Query para inserir ou atualizar a informação
+    let connection = connection()?;
+    connection.execute(
+        "INSERT INTO info (name, info) VALUES (?1, ?2)
+         ON CONFLICT(name) DO UPDATE SET info = excluded.info;",
+        params!["opened", "true"],
+    )?;
+    println!("Informação 'opened' adicionada/atualizada com sucesso.");
+    Ok(())
 }

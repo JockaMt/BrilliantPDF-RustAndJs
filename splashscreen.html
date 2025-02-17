@@ -8,4 +8,10 @@
     <body style="display: flex; justify-content: center; overflow: hidden; padding: 0; margin: 0">
         <video style="display: flex; height: 100vh; object-fit: cover" autoplay src="dist/splash.mp4"></video>
     </body>
+<script>
+    // Desabilita o menu de contexto
+    document.addEventListener('contextmenu', function (event) {
+        event.preventDefault(); // Impede o menu de contexto padrão
+    });
+</script>
 </html>

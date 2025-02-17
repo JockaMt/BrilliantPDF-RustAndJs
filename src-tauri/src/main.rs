@@ -10,6 +10,7 @@ use aes_gcm::aead::Aead;
 use aes_gcm::KeyInit;
 use hex;
 use serde::{Deserialize, Serialize};
+mod database;
 
 #[derive(Serialize, Deserialize)]
 struct HWIDData {
@@ -90,23 +91,30 @@ fn read_hwid_from_json() -> Option<String> {
 }
 
 fn main() {
+    let valor = database::get_info("opened").unwrap();
     match encrypt_hwid(generate_hwid().as_str(), &[0x00; 32]) {
         Some(encrypted_hwid) => {
-            if let Some(saved_hwid) = read_hwid_from_json() {
-                // Se o HWID salvo for diferente do atual, encerramos o programa
-                if saved_hwid != encrypted_hwid {
-                    std::process::exit(0);
+            if valor == "true" {
+                if let Some(saved_hwid) = read_hwid_from_json() {
+                    // Se o HWID salvo for diferente do atual, encerramos o programa
+                    if saved_hwid != encrypted_hwid {
+                        std::process::exit(0);
+                    } else {
+                        brilliantpdf_lib::run();
+                    }
                 } else {
-                    brilliantpdf_lib::run();
+                    std::process::exit(0);
                 }
             } else {
                 if let Err(e) = save_to_json(&encrypted_hwid) {
                     eprintln!("Erro ao salvar o JSON: {}", e);
                 } else {
+                    database::add_info_opened().expect("TODO: panic message");
                     brilliantpdf_lib::run();
                 }
             }
         }
         None => ()
     }
+
 }

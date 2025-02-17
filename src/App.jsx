@@ -3,7 +3,7 @@ import Home from "./components/routes/home";
 import SideBar from "./components/sidebar";
 import SidebarItem from "./components/sidebaritem";
 import {
-    RiBugLine,
+    RiBugLine, RiChatNewLine,
     RiDeleteBin2Line,
     RiEditLine,
     RiExportLine,
@@ -18,6 +18,7 @@ import EditSections from "./components/routes/editSection";
 import {Box, Modal} from "@mui/material";
 import React, {useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
+import {MdFiberNew} from "react-icons/md";
 
 const router = createBrowserRouter([
     {
@@ -40,8 +41,10 @@ const router = createBrowserRouter([
 
 const App = () => {
 
+    const version = "1.0.0"
     const [sectionAlert, setSectionAlert] = useState(false)
     const [sectionAlert2, setSectionAlert2] = useState(false)
+    const [updateAlert, setUpdateAlert] = useState(false)
     const [alertAction, setAlertAction] = useState(0)
     const options = [
         {title: "Editar nome da empresa", action: "name"},
@@ -109,6 +112,18 @@ const App = () => {
     useEffect(() => {
         get_pallet().then();
         setTimeout(()=>invoke("close_splashscreen"), 5000)
+        // Desabilita o menu de contexto
+        const disableContextMenu = (event) => {
+            event.preventDefault();
+        };
+
+        // Adiciona o event listener
+        window.addEventListener('contextmenu', disableContextMenu);
+
+        // Remove o event listener ao desmontar o componente
+        return () => {
+            window.removeEventListener('contextmenu', disableContextMenu);
+        };
     }, []);
 
     const get_pallet = async () => {
@@ -144,6 +159,14 @@ const App = () => {
                 style={{display: 'none'}}
                 onChange={handleImageChange}
             />
+            <Modal onClose={() => setUpdateAlert(false)} className={"flex justify-center items-center"}
+                   open={updateAlert}>
+                <Box sx={{width: 'auto', height: 'auto', borderRadius: 2}} className={"flex flex-col items-center bg-white p-5 outline-none"}>
+                    <MdFiberNew className="mb-3" size={30} color="#115f5f"/>
+                    <p>Atualização disponível, entre em contato!</p>
+                    <small className="mb-2">Clique fora para ignorar</small>
+                </Box>
+            </Modal>
             <Modal onClose={() => setSectionAlert2(false)} className={"flex justify-center items-center"}
                    open={sectionAlert2}>
                 <Box sx={{width: 'auto', height: 'auto', borderRadius: 2}} className={"bg-white p-5 outline-none"}>
