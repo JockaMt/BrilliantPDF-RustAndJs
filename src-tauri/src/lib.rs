@@ -1,6 +1,6 @@
 use tauri::{Manager, Window};
 use crate::database::Item;
-
+use serde_json::json;
 mod generate_pdf;
 mod database;
 
@@ -75,6 +75,33 @@ fn open_email_report() {
     webbrowser::open("https://wa.me/5528981137532").expect("TODO: panic message");
 }
 
+#[tauri::command]
+fn get_app_version() -> String { env!("CARGO_PKG_VERSION").to_string() }
+
+#[tauri::command]
+async fn fetch_app_version() -> Result<bool, String> {
+    let client = reqwest::Client::new();
+    let body = json!({ "app": "brilliant" });
+
+    let response = client
+        .post("https://brilliantsoftwareapi.onrender.com/get-app-version")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if response.status().is_success() {
+        let version = response.text().await.map_err(|e| e.to_string())?;
+        if version == get_app_version() {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    } else {
+        Err(format!("Failed to fetch app version: {}", response.status()))
+    }
+}
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -103,6 +130,7 @@ pub fn run() {
                 export_database,
                 import_database,
                 open_email_report,
+                fetch_app_version,
             ]
         )
         .run(tauri::generate_context!())

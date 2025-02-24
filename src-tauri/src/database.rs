@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 use rfd::FileDialog;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Item {
+pub struct Item {
     pub(crate) id: i32,
     pub(crate) item_name: String,
     pub(crate) section: String,

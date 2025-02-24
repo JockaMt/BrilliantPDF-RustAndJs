@@ -3,7 +3,7 @@ import Home from "./components/routes/home";
 import SideBar from "./components/sidebar";
 import SidebarItem from "./components/sidebaritem";
 import {
-    RiBugLine, RiChatNewLine,
+    RiBugLine,
     RiDeleteBin2Line,
     RiEditLine,
     RiExportLine,
@@ -41,7 +41,6 @@ const router = createBrowserRouter([
 
 const App = () => {
 
-    const version = "1.0.0"
     const [sectionAlert, setSectionAlert] = useState(false)
     const [sectionAlert2, setSectionAlert2] = useState(false)
     const [updateAlert, setUpdateAlert] = useState(false)
@@ -108,6 +107,17 @@ const App = () => {
     const selectFolder = async () => {
         invoke("where_save").then()
     }
+    
+    useEffect(() => {
+        let hasRun = sessionStorage.getItem('appVersionChecked');
+
+        if (!hasRun) {
+        invoke("fetch_app_version").then((e) => {
+            setUpdateAlert(!e);
+        });
+        sessionStorage.setItem('appVersionChecked', 'true');
+        }
+    }, []);
 
     useEffect(() => {
         get_pallet().then();
@@ -116,10 +126,10 @@ const App = () => {
         const disableContextMenu = (event) => {
             event.preventDefault();
         };
+        
 
         // Adiciona o event listener
         window.addEventListener('contextmenu', disableContextMenu);
-
         // Remove o event listener ao desmontar o componente
         return () => {
             window.removeEventListener('contextmenu', disableContextMenu);
