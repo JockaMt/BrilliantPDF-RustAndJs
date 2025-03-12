@@ -16,7 +16,8 @@
         "width": 1280,
         "height": 720,
         "visible": false,
-        "label": "main"
+        "label": "main",
+        "center": true
       },{
         "title": "Loading",
         "width": 960,
@@ -26,7 +27,9 @@
         "url": "splashscreen.html",
         "label": "splashscreen",
         "resizable": false,
-        "fullscreen": true
+        "fullscreen": false,
+        "alwaysOnTop": true,
+        "center": true
       }
     ],
     "security": {
