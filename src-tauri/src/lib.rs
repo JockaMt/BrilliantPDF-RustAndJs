@@ -5,6 +5,7 @@ mod generate_pdf;
 mod database;
 
 
+
 #[tauri::command]
 fn generate_pdf() { generate_pdf::python_gen(); }
 
