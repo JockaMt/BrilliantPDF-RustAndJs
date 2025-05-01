@@ -5,9 +5,11 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
+    base: "./",
     build: {
         outDir: 'dist', // Diretório de saída
         emptyOutDir: false, // Não limpar o diretório antes do build
+        assetsDir: 'assets'
     },
   plugins: [react()],
 

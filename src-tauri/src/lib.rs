@@ -1,61 +1,95 @@
-use tauri::{Manager, Window};
 use crate::database::Item;
 use serde_json::json;
-mod generate_pdf;
+use tauri::{Manager, Window};
+use tauri_plugin_updater::UpdaterExt;
+
 mod database;
-
-
-
-#[tauri::command]
-fn generate_pdf() { generate_pdf::python_gen(); }
+mod generate_pdf;
 
 #[tauri::command]
-fn get_items_in_section( section: &str ) -> Result<Vec<Item>, String> {Ok(database::get_items_in_section(section)?)}
+fn generate_pdf() {
+    generate_pdf::python_gen();
+}
 
 #[tauri::command]
-fn insert_item( item: Item ) -> Result<(), String> {Ok(database::insert_item(&item).unwrap())}
+fn get_items_in_section(section: &str) -> Result<Vec<Item>, String> {
+    Ok(database::get_items_in_section(section)?)
+}
 
 #[tauri::command]
-fn delete_item(item_id: i32) -> Result<(), String> {Ok(database::delete_item(item_id).expect(""))}
+fn insert_item(item: Item) -> Result<(), String> {
+    Ok(database::insert_item(&item).unwrap())
+}
 
 #[tauri::command]
-fn delete_all_items(section : &str) -> Result<(), String> { Ok(database::delete_all_items(section).expect("")) }
+fn delete_item(item_id: i32) -> Result<(), String> {
+    Ok(database::delete_item(item_id).expect(""))
+}
 
 #[tauri::command]
-fn get_sections() -> Result<Vec<String>, String> { Ok(database::get_sections().expect("")) }
+fn delete_all_items(section: &str) -> Result<(), String> {
+    Ok(database::delete_all_items(section).expect(""))
+}
 
 #[tauri::command]
-fn insert_section( section: &str ) { database::insert_section(section).expect("") }
+fn get_sections() -> Result<Vec<String>, String> {
+    Ok(database::get_sections().expect(""))
+}
 
 #[tauri::command]
-fn update_section(  new_section: &str, section: &str ) { database::update_section(new_section, section).expect("") }
+fn insert_section(section: &str) {
+    database::insert_section(section).expect("")
+}
 
 #[tauri::command]
-fn delete_section(  section: &str ) { database::delete_section(section).expect("") }
+fn update_section(new_section: &str, section: &str) {
+    database::update_section(new_section, section).expect("")
+}
 
 #[tauri::command]
-fn check_section_exists( section: &str ) -> bool { database::check_section_exists(section).expect("") }
+fn delete_section(section: &str) {
+    database::delete_section(section).expect("")
+}
 
 #[tauri::command]
-fn check_item_exists( id: i32 ) -> bool { database::check_item_exists(id).expect("") }
+fn check_section_exists(section: &str) -> bool {
+    database::check_section_exists(section).expect("")
+}
 
 #[tauri::command]
-fn update_info (name :String, info: String) {database::change_info(name, info).unwrap()}
+fn check_item_exists(id: i32) -> bool {
+    database::check_item_exists(id).expect("")
+}
 
 #[tauri::command]
-fn get_info (name :&str) -> String {database::get_info(name).expect("")}
+fn update_info(name: String, info: String) {
+    database::change_info(name, info).unwrap()
+}
 
 #[tauri::command]
-fn delete_all_sections () -> Result<(), String> { Ok(database::drop_tables().expect("")) }
+fn get_info(name: &str) -> String {
+    database::get_info(name).expect("")
+}
 
 #[tauri::command]
-fn where_save () { database::choose_save_location(); }
+fn delete_all_sections() -> Result<(), String> {
+    Ok(database::drop_tables().expect(""))
+}
 
 #[tauri::command]
-fn get_item (id: &str) -> Result<Item, String> { Ok(database::get_item(id).expect("")) }
+fn where_save() {
+    database::choose_save_location();
+}
 
 #[tauri::command]
-fn update_item (item: Item) -> Result<(), String> { Ok(database::update_item(item).expect(""))}
+fn get_item(id: &str) -> Result<Item, String> {
+    Ok(database::get_item(id).expect(""))
+}
+
+#[tauri::command]
+fn update_item(item: Item) -> Result<(), String> {
+    Ok(database::update_item(item).expect(""))
+}
 
 #[tauri::command]
 fn close_splashscreen(window: Window) {
@@ -66,10 +100,14 @@ fn close_splashscreen(window: Window) {
 }
 
 #[tauri::command]
-fn export_database() -> Result<(), String> { Ok(database::export_database().expect("")) }
+fn export_database() -> Result<(), String> {
+    Ok(database::export_database().expect(""))
+}
 
 #[tauri::command]
-fn import_database() { database::import_database(); }
+fn import_database() {
+    database::import_database();
+}
 
 #[tauri::command]
 fn open_email_report() {
@@ -77,7 +115,9 @@ fn open_email_report() {
 }
 
 #[tauri::command]
-fn get_app_version() -> String { env!("CARGO_PKG_VERSION").to_string() }
+fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
 
 #[tauri::command]
 async fn fetch_app_version() -> Result<bool, String> {
@@ -99,41 +139,72 @@ async fn fetch_app_version() -> Result<bool, String> {
             Ok(false)
         }
     } else {
-        Err(format!("Failed to fetch app version: {}", response.status()))
+        Err(format!(
+            "Failed to fetch app version: {}",
+            response.status()
+        ))
     }
 }
 
+async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
+    if let Some(update) = app.updater()?.check().await? {
+        let mut downloaded = 0;
+
+        // alternatively we could also call update.download() and update.install() separately
+        update
+            .download_and_install(
+                |chunk_length, content_length| {
+                    downloaded += chunk_length;
+                    println!("downloaded {downloaded} from {content_length:?}");
+                },
+                || {
+                    println!("download finished");
+                },
+            )
+            .await?;
+
+        println!("update installed");
+        app.restart();
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn check_and_apply_update(app: tauri::AppHandle) -> Result<(), String> {
+    update(app).await.map_err(|e| e.to_string())
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler!
-            [
-                generate_pdf,
-                insert_section,
-                get_sections,
-                delete_section,
-                check_section_exists,
-                update_section,
-                get_items_in_section,
-                insert_item,
-                delete_item,
-                check_item_exists,
-                update_info,
-                get_info,
-                delete_all_items,
-                delete_all_sections,
-                where_save,
-                get_item,
-                update_item,
-                close_splashscreen,
-                export_database,
-                import_database,
-                open_email_report,
-                fetch_app_version,
-            ]
-        )
+        .invoke_handler(tauri::generate_handler![
+            generate_pdf,
+            insert_section,
+            get_sections,
+            delete_section,
+            check_section_exists,
+            update_section,
+            get_items_in_section,
+            insert_item,
+            delete_item,
+            check_item_exists,
+            update_info,
+            get_info,
+            delete_all_items,
+            delete_all_sections,
+            where_save,
+            get_item,
+            update_item,
+            close_splashscreen,
+            export_database,
+            import_database,
+            open_email_report,
+            fetch_app_version,
+            check_and_apply_update,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

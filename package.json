@@ -1,10 +1,10 @@
 {
   "name": "brilliantpdf",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
-    "dev": "tailwindcss -i ./src/input.css -o ./dist/output.css && vite",
+    "dev": "vite && tailwindcss -i ./src/input.css -o ./output.css --watch",
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri"
@@ -16,7 +16,9 @@
     "@tailwindcss/postcss": "^4.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "@tauri-apps/api": ">=2.0.0",
+    "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-shell": ">=2.0.0",
+    "@tauri-apps/plugin-updater": "^2.6.1",
     "cors": "^2.8.5",
     "firebase": "^11.2.0",
     "mongodb": "^6.11.0",

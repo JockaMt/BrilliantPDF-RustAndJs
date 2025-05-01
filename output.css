@@ -590,6 +590,10 @@ video {
   z-index: 50;
 }
 
+.m-5 {
+  margin: 1.25rem;
+}
+
 .m-7 {
   margin: 1.75rem;
 }
@@ -644,6 +648,14 @@ video {
   margin-top: 0.25rem;
 }
 
+.ml-5 {
+  margin-left: 1.25rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
 .block {
   display: block;
 }
@@ -654,6 +666,10 @@ video {
 
 .hidden {
   display: none;
+}
+
+.h-10 {
+  height: 2.5rem;
 }
 
 .h-12 {
@@ -672,12 +688,20 @@ video {
   height: 5rem;
 }
 
+.h-5 {
+  height: 1.25rem;
+}
+
 .h-6 {
   height: 1.5rem;
 }
 
 .h-8 {
   height: 2rem;
+}
+
+.h-\[24px\] {
+  height: 24px;
 }
 
 .h-full {
@@ -696,6 +720,10 @@ video {
   min-height: 4rem;
 }
 
+.w-10 {
+  width: 2.5rem;
+}
+
 .w-12 {
   width: 3rem;
 }
@@ -708,8 +736,12 @@ video {
   width: 7rem;
 }
 
-.w-44 {
-  width: 11rem;
+.w-48 {
+  width: 12rem;
+}
+
+.w-5 {
+  width: 1.25rem;
 }
 
 .w-6 {
@@ -728,6 +760,10 @@ video {
   width: 100%;
 }
 
+.w-\[24px\] {
+  width: 24px;
+}
+
 .w-\[80rem\] {
   width: 80rem;
 }
@@ -742,6 +778,10 @@ video {
 
 .min-w-12 {
   min-width: 3rem;
+}
+
+.min-w-24 {
+  min-width: 6rem;
 }
 
 .max-w-\[50rem\] {
@@ -862,6 +902,10 @@ video {
   text-wrap: nowrap;
 }
 
+.rounded {
+  border-radius: 0.25rem;
+}
+
 .rounded-2xl {
   border-radius: 1rem;
 }
@@ -900,6 +944,10 @@ video {
   border-right-width: 2px;
 }
 
+.border-none {
+  border-style: none;
+}
+
 .border-default {
   --tw-border-opacity: 1;
   border-color: rgb(17 95 95 / var(--tw-border-opacity, 1));
@@ -927,6 +975,10 @@ video {
   background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
 }
 
+.bg-gray-300\/50 {
+  background-color: rgb(209 213 219 / 0.5);
+}
+
 .bg-red-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(220 38 38 / var(--tw-bg-opacity, 1));
@@ -938,7 +990,7 @@ video {
 }
 
 .bg-background {
-  background-image: url(./src/assets/background.jpg);
+  background-image: url(src/assets/background.jpg);
 }
 
 .bg-cover {
@@ -1030,6 +1082,10 @@ video {
 
 .pb-8 {
   padding-bottom: 2rem;
+}
+
+.pl-2 {
+  padding-left: 0.5rem;
 }
 
 .pr-16 {
@@ -1238,6 +1294,14 @@ video {
 
 .group:hover .group-hover\:block {
   display: block;
+}
+
+.group:hover .group-hover\:flex {
+  display: flex;
+}
+
+.group:hover .group-hover\:w-32 {
+  width: 8rem;
 }
 
 .peer:checked ~ .peer-checked\:bg-default {

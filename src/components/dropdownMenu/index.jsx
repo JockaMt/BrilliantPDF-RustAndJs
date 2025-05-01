@@ -24,7 +24,7 @@ const DropdownMenu = ({options, onSelect, initial}) => {
             <button id={"button"} onClick={((e) => {e.preventDefault(); toggleDropdown()})} onBlur={() => toggleDropdown(false)}
                 className="flex w-full hover:bg-default/20 relative border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none bg-default/5 p-2">
                 <span className="block">
-                    {selectedItem ? selectedItem : "Selecione uma seção"}
+                    {selectedItem ? selectedItem : "Select a section"}
                 </span>
                 {isOpenDropdown &&
                     <ul className={"flex flex-col overflow-hidden shadow-md rounded-md w-full absolute top-0 left-0"}>

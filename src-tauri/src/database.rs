@@ -1,8 +1,8 @@
-use std::{fs};
-use std::path::{Path};
-use rusqlite::{params, Connection, Error, Result};
-use serde::{Serialize, Deserialize};
 use rfd::FileDialog;
+use rusqlite::{params, Connection, Error, Result};
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Item {
@@ -23,13 +23,17 @@ fn connection() -> Result<Connection> {
     match connection_result {
         Ok(connection) => {
             // Criação das tabelas
-            connection.execute("
+            connection.execute(
+                "
                 CREATE TABLE IF NOT EXISTS sections (
                     name TEXT PRIMARY KEY NOT NULL
                 )
-            ", [])?;
+            ",
+                [],
+            )?;
 
-            connection.execute("
+            connection.execute(
+                "
                 CREATE TABLE IF NOT EXISTS items (
                     id              INTEGER PRIMARY KEY,
                     item_name       TEXT DEFAULT '',
@@ -43,22 +47,27 @@ fn connection() -> Result<Connection> {
                     image           TEXT,
                     FOREIGN KEY (section) REFERENCES sections(name) ON DELETE CASCADE
                 )
-            ", [])?;
+            ",
+                [],
+            )?;
 
-            connection.execute("
+            connection.execute(
+                "
                 CREATE TABLE IF NOT EXISTS info (
                     name            TEXT PRIMARY KEY,
                     info            TEXT NOT NULL
                 )
-            ", [])?;
+            ",
+                [],
+            )?;
 
             // Insere os valores padrão na tabela 'info' se não existirem
             let default_values = [
                 ("name", ""),
                 ("save_path", ""),
-                ("pallet", "0"),
+                ("pallet", "0,0,0"),
                 ("phone", ""),
-                ("logo", "")
+                ("logo", ""),
             ];
 
             for (key, value) in default_values.iter() {
@@ -118,21 +127,21 @@ pub fn update_section(new_name: &str, section: &str) -> Result<()> {
     Ok(())
 }
 
-
-
 pub fn get_sections() -> Result<Vec<String>, String> {
     let mut sections: Vec<String> = Vec::new();
     let connection = connection().map_err(|e| e.to_string())?;
-    let mut stmt = connection.prepare("SELECT name FROM sections").map_err(|e| e.to_string())?;
-    let rows = stmt.query_map([], |row| {
-        let name: String = row.get(0)?;
-        Ok(name)
-    }).map_err(|e| e.to_string())?;
+    let mut stmt = connection
+        .prepare("SELECT name FROM sections")
+        .map_err(|e| e.to_string())?;
+    let rows = stmt
+        .query_map([], |row| {
+            let name: String = row.get(0)?;
+            Ok(name)
+        })
+        .map_err(|e| e.to_string())?;
     for row in rows {
         match row {
-            Ok(name) => {
-                sections.push(name)
-            },
+            Ok(name) => sections.push(name),
             Err(e) => eprintln!("Erro ao obter seção: {}", e),
         }
     }
@@ -146,7 +155,7 @@ pub fn delete_section(name: &str) -> Result<()> {
 }
 
 pub fn check_section_exists(section: &str) -> Result<bool> {
-    let connection = connection()?;  // Assumindo que você tem uma função `connection`
+    let connection = connection()?; // Assumindo que você tem uma função `connection`
 
     let mut stmt = connection.prepare("SELECT name FROM sections WHERE name = ?1")?;
 
@@ -168,20 +177,22 @@ pub fn get_items_in_section(section_name: &str) -> Result<Vec<Item>, String> {
     ).map_err(|e| e.to_string())?;
 
     // Executando a query e mapeando os resultados para objetos Item
-    let rows = stmt.query_map([section_name], |row| {
-        Ok(Item {
-            id: row.get(0)?,
-            item_name: row.get(1)?,
-            section: row.get(2)?,
-            gold_weight: row.get(3)?,
-            gold_price: row.get(4)?,
-            silver_weight: row.get(5)?,
-            silver_price: row.get(6)?,
-            loss: row.get(7)?,
-            time: row.get(8)?,
-            image: row.get(9)?,
+    let rows = stmt
+        .query_map([section_name], |row| {
+            Ok(Item {
+                id: row.get(0)?,
+                item_name: row.get(1)?,
+                section: row.get(2)?,
+                gold_weight: row.get(3)?,
+                gold_price: row.get(4)?,
+                silver_weight: row.get(5)?,
+                silver_price: row.get(6)?,
+                loss: row.get(7)?,
+                time: row.get(8)?,
+                image: row.get(9)?,
+            })
         })
-    }).map_err(|e| e.to_string())?;
+        .map_err(|e| e.to_string())?;
     let mut items_in_section: Vec<Item> = Vec::new();
     for item in rows {
         items_in_section.push(item.map_err(|e| e.to_string())?);
@@ -217,7 +228,7 @@ pub fn insert_item(item: &Item) -> Result<()> {
     let connection = connection().unwrap();
     insert_section(&item.section)?;
     if item.id != 0 && item.section != "" && item.image != "" {
-    connection.execute(
+        connection.execute(
             "INSERT OR IGNORE INTO items (
                 id, item_name, section, gold_weight, gold_price, silver_weight, silver_price, loss, time, image
             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
@@ -280,7 +291,10 @@ pub fn delete_item(item_id: i32) -> Result<()> {
 
 pub fn delete_all_items(section_name: &str) -> Result<()> {
     let connection = connection()?;
-    connection.execute("DELETE FROM items WHERE section = ?1", params![section_name])?;
+    connection.execute(
+        "DELETE FROM items WHERE section = ?1",
+        params![section_name],
+    )?;
     Ok(())
 }
 
@@ -295,12 +309,12 @@ pub fn change_info(name: String, info: String) -> Result<()> {
     let connection = connection()?;
     let updated_rows = connection.execute(
         "UPDATE info SET info = ?1 WHERE name = ?2",
-        params![info, name]
+        params![info, name],
     )?;
     if updated_rows == 0 {
         connection.execute(
             "INSERT INTO info (name, info) VALUES (?1, ?2)",
-            params![name, info]
+            params![name, info],
         )?;
     }
     Ok(())
@@ -309,15 +323,15 @@ pub fn change_info(name: String, info: String) -> Result<()> {
 pub fn get_info(name: &str) -> Result<String> {
     let connection = connection()?;
     let mut stmt = connection.prepare("SELECT info FROM info WHERE name = ?1")?;
-    let result = stmt.query_row(params![name], |row| {
-        row.get(0)
-    }).or_else(|err| {
-        if let Error::QueryReturnedNoRows = err {
-            Ok("0".to_string())  // Retorna "0" como string padrão
-        } else {
-            Err(err)  // Propaga outros erros
-        }
-    })?;
+    let result = stmt
+        .query_row(params![name], |row| row.get(0))
+        .or_else(|err| {
+            if let Error::QueryReturnedNoRows = err {
+                Ok("0".to_string()) // Retorna "0" como string padrão
+            } else {
+                Err(err) // Propaga outros erros
+            }
+        })?;
     Ok(result)
 }
 
@@ -366,9 +380,7 @@ pub fn export_database() -> Result<(), String> {
     if let Some(destination) = destination_path {
         // Copiar o arquivo para o local escolhido
         match fs::copy(source_path, &destination) {
-            Ok(_) => {
-                Ok(())
-            }
+            Ok(_) => Ok(()),
             Err(e) => Err(format!("Erro ao copiar o arquivo: {}", e)),
         }
     } else {

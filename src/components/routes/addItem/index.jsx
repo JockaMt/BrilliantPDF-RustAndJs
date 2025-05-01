@@ -17,7 +17,7 @@ const AddItem = () => {
     const [sectionAlert, setSectionAlert] = useState(false);
     const [sections, setSections] = useState([]);
 
-    const messages = ["Já existe um item com este id.", "Preencha os itens necessários: Imagem, Código e Seção"]
+    const messages = ["An item with this id already exists.", "Fill in the required items: Image, Code and Section"]
     const [msgIdx, setMsgIdx] = useState(0)
 
     const [item, setItem] = useState({
@@ -148,28 +148,28 @@ const AddItem = () => {
             })
         }
         handleSectionChange(section)
-        loadSections();
+        loadSections().then();
     }, []);
 
     return (
         <div className="flex flex-col h-full w-full">
             <Modal onClose={() => setSectionAlert(false)} className={"flex justify-center items-center"} open={sectionAlert}>
                 <Box sx={{ width: 400, height: msgIdx === 0 ? 150 : 175, borderRadius: 2 }} className={"bg-white p-3"}>
-                    <h2 className={"flex justify-center pt-2 text-lg text-default font-medium"}>Atenção!</h2>
+                    <h2 className={"flex justify-center pt-2 text-lg text-default font-medium"}>Warning!</h2>
                     <p className={"flex text-center justify-center items-center pt-8"}>{messages[msgIdx]}</p>
                 </Box>
             </Modal>
             <div className="fixed h-full w-full -z-10 opacity-5 bg-background bg-no-repeat bg-center bg-cover"></div>
-            <Header page={"Adicionar item"} />
-            <button className="flex text-white font-medium gap-3 fixed p-7" onClick={() => navigate(-1)}>Voltar</button>
+            <Header page={id ? "Editing item " + id : "New item"} />
+            <button className="flex text-white font-medium gap-3 fixed p-7" onClick={() => navigate(-1)}>Back</button>
             <div className="flex-1 overflow-auto h-full gap-12 justify-center items-center">
                 <div className="flex h-full">
                     <div className="flex flex-col pt-12 mx-12 w-full items-center">
-                        <h2 className="flexpt-12 text-lg font-bold">{id ? "Editar item" : "Novo item"}</h2>
-                        <small className="flex w-full max-w-[50rem] text-center justify-center border-b-2 mx-12 pb-3">Preencha os campos obrigatórios <br/>(Use ponto para separar as casas decimais)</small>
+                        <h2 className="flexpt-12 text-lg font-bold">{id ? "Edit item" : "New item"}</h2>
+                        <small className="flex w-full max-w-[50rem] text-center justify-center border-b-2 mx-12 pb-3">Fill in the required fields<br/></small>
                         <form onSubmit={(e) => {
                             e.preventDefault();
-                            submit();
+                            submit().then();
                         }} className="flex gap-3 flex-col w-full max-w-[50rem] py-3">
                             <label
                                 className="flex overflow-hidden items-center gap-2 w-full text-nowrap border-b-2 hover:cursor-pointer hover:bg-default/20 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none bg-default/5 p-2"
@@ -182,7 +182,7 @@ const AddItem = () => {
                                     accept={"image/*"}
                                     type={"file"}
                                     alt=""/>
-                                {item.image ? <img alt={"icon"} className={"flex w-8 h-6 object-cover"} src={item.image.split(`\\`).pop()}/> : <RiImage2Line color={"#115f5f"}/>}Escolher imagem
+                                {item.image ? <img alt={"icon"} className={"flex w-8 h-6 object-cover"} src={item.image.split(`\\`).pop()}/> : <RiImage2Line color={"#115f5f"}/>}Choose image...
                             </label>
                             <InputNumber
                                 id={"id"}
@@ -190,13 +190,13 @@ const AddItem = () => {
                                 value={item.id}
                                 onChange={(e) => handleInputChange(e, "id")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5  p-2"
-                                type="text" placeholder="Código do item"/>
+                                type="text" placeholder="Item code"/>
                             <input
                                 name={"item_name"}
                                 value={item.item_name}
                                 onChange={handleDescriptionChange}
                                 className="w-full border-b-2 border-default outline-none hover:bg-default/20 bg-default/5  p-2"
-                                type="text" placeholder="Descrição do item"/>
+                                type="text" placeholder="Item description"/>
                             <DropdownMenu onSelect={handleSectionChange} id="dropdown" initial={section}
                                           options={sections}/>
                             <InputNumber
@@ -207,7 +207,7 @@ const AddItem = () => {
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
                                 inputMode={"decimal"}
                                 precision={2}
-                                placeholder="Peso em ouro"/>
+                                placeholder="Weight in gold"/>
                             <InputNumber
                                 id={"gold_price"}
                                 style={{margin: 0, padding: 0, height: "2.7rem"}}
@@ -216,7 +216,7 @@ const AddItem = () => {
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
                                 inputMode={"decimal"}
                                 precision={2}
-                                placeholder="Preço do ouro"/>
+                                placeholder="Gold price"/>
                             <InputNumber
                                 id={"silver_weight"}
                                 style={{margin: 0, padding: 0, height: "2.7rem"}}
@@ -225,7 +225,7 @@ const AddItem = () => {
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
                                 inputMode={"decimal"}
                                 precision={2}
-                                placeholder="Peso em prata"/>
+                                placeholder="Weight in silver"/>
                             <InputNumber
                                 id={"silver_price"}
                                 style={{margin: 0, padding: 0, height: "2.7rem"}}
@@ -234,7 +234,7 @@ const AddItem = () => {
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
                                 inputMode={"decimal"}
                                 precision={2}
-                                placeholder="Preço da prata"/>
+                                placeholder="Silver price"/>
                             <InputNumber
                                 id={"loss"}
                                 style={{margin: 0, padding: 0, height: "2.7rem"}}
@@ -242,7 +242,7 @@ const AddItem = () => {
                                 onChange={(e) => handleInputChange(e, "loss")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5 p-2"
                                 inputMode={"numeric"}
-                                placeholder="Perda de material (em porcentagem)"/>
+                                placeholder="Material loss (in percentage)"/>
                             <InputNumber
                                 id={"time"}
                                 style={{margin: 0, padding: 0, height: "2.7rem"}}
@@ -250,10 +250,10 @@ const AddItem = () => {
                                 precision={0}
                                 onChange={(e) => handleInputChange(e, "time")}
                                 className="w-full border-b-2 border-default focus:border-none focus:rounded-md focus:mb-[2px] outline-none hover:bg-default/20 bg-default/5  p-2"
-                                inputMode={"numeric"} placeholder="Tempo de produção (em dias)"/>
+                                inputMode={"numeric"} placeholder="Production time (in days)"/>
                             <button
                                 className="text-default transition-all font-medium p-2 hover:bg-default/40 rounded-md"
-                                type="submit">Salvar
+                                type="submit">Save
                             </button>
                         </form>
                     </div>

@@ -6,7 +6,7 @@ const LoginScreen = ({ handleGoogleLogin, handleEmailLogin }) => {
 
     return (
         <div className="h-screen flex items-center justify-center bg-default/20 rounded-md">
-            <div className="w-[80rem] max-w-md p-5 shadow-md rounded-lg rounded-2xl bg-white flex flex-col">
+            <div className="w-[80rem] max-w-md p-5 shadow-md rounded-2xl bg-white flex flex-col">
                 <h1 className="text-2xl font-bold text-center p-3">Login</h1>
                 <div className="flex flex-col gap-2 space-y-4">
                     <div>

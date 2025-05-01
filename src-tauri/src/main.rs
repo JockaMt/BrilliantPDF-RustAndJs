@@ -1,15 +1,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{env, fs, io};
-use std::path::{Path, PathBuf};
-use std::process::Command;
-use sha2::{Sha256, Digest};
-use sysinfo::{System};
-use aes_gcm::{Aes256Gcm, Key, Nonce};
 use aes_gcm::aead::Aead;
 use aes_gcm::KeyInit;
+use aes_gcm::{Aes256Gcm, Key, Nonce};
 use hex;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::path::{Path, PathBuf};
+use std::process::Command;
+use std::{env, fs, io};
+use sysinfo::System;
 mod database;
 
 #[derive(Serialize, Deserialize)]
@@ -38,14 +38,18 @@ fn generate_hwid() -> String {
     system.refresh_all();
 
     // Obtém o nome do primeiro processador
-    let cpu_name = system.cpus().first().map(|cpu| cpu.brand()).unwrap_or("Unknown").to_string();
+    let cpu_name = system
+        .cpus()
+        .first()
+        .map(|cpu| cpu.brand())
+        .unwrap_or("Unknown")
+        .to_string();
 
     // Cria o hash apenas com o nome do processador
     let mut hasher = Sha256::new();
     hasher.update(cpu_name);
     format!("{:x}", hasher.finalize()) // Retorna o hash do HWID
 }
-
 
 fn encrypt_hwid(hwid: &str, key: &[u8; 32]) -> Option<String> {
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
@@ -114,7 +118,6 @@ fn main() {
                 }
             }
         }
-        None => ()
+        None => (),
     }
-
 }
